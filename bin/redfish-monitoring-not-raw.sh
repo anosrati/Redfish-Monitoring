@@ -6,10 +6,10 @@
 ###################################################################################
 
 #---------Adding not-raw directory in the results----------------------------------
-if [ ! -d ../results/not-raw ]
+if [ ! -d ../results/collected/not-raw ]
 then
-    mkdir ../results/not-raw
-    echo "../results/not-raw directory created successfully!"
+    mkdir ../results/collected/not-raw
+    echo "../results/collected/not-raw directory created successfully!"
 fi
 echo
 
@@ -26,7 +26,7 @@ if [ $1 ]
 then
     resultsPath=$1
 else
-    resultsPath="../results/not-raw"
+    resultsPath="../results/collected/not-raw"
 fi
 
 
@@ -44,17 +44,17 @@ do
 
 #----------Creating tagName and runTime directory to save monitoring results-------
     tagNameCapital=`echo $tagName | tr [a-z] [A-Z]`
-    echo "******************************************* $tagNameCapital *******************************************"
-    mkdir -p ../results/not-raw/$runTime/$tagName
+    echo "************************************************ $tagNameCapital ************************************************"
+    mkdir -p ../results/collected/not-raw/$runTime/$tagName
 
 #----------Creating rackID directory to save monitoring results--------------------
     for rack in  `cat ../config/cluster.conf | sed -e '1,/--/d' | awk '{print $1}' | grep -v '^ *$' | uniq`
     do
-        mkdir ../results/not-raw/$runTime/$tagName/$rack
+        mkdir ../results/collected/not-raw/$runTime/$tagName/$rack
     done
     
-    echo "../results/not-raw/$runTime/$tagName and all racks subdirectory created successfully!"
-    echo "*********************************************************************************************"
+    echo "../results/collected/not-raw/$runTime/$tagName and all racks subdirectory created successfully!"
+    echo "*******************************************************************************************************"
 
 
 ###################################################################################
