@@ -15,7 +15,6 @@ then
 else
     resultsPath="../results/not-raw"
 fi
-#echo $resultsPath
 
 #----------Finding number of tags for the upcoming tests---------------------------
 tagNumber=$(cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' | wc -l)
@@ -25,7 +24,6 @@ for i in `seq 2 $tagNumber`
 do
     tagName=`cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' | awk '{print $1}' | head -n +$i | tail -1`
     subCommand=`cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' |awk -F $'\t' '{print $2}' | head -n +$i | tail -1`
-#    echo $subCommand
     
 #----------Gathering data for each tag from all cluster nodes----------------------
     for node in `cat ../config/cluster.conf | sed -e '1,/--/d' | awk '{print $3}'`
