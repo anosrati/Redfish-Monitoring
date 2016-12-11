@@ -64,7 +64,7 @@ do
     do
         rackID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $1}'`
         nodeID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $2}'`
-        echo "(time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+        (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
     done
     wait
 
