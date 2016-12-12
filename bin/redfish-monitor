@@ -103,7 +103,7 @@ do
             (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
         elif [ $method == "raw" ]
         then
-            (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv raw GET 'https://10.101.19.1/$subCommand')&> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+	    (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv raw GET https://$node/$subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
         else
             echo "Ooops! something went wrong"
         fi
