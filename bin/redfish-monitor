@@ -18,6 +18,7 @@ do
             method="$OPTARG"
         else
             echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw-3step | raw-1step]"
+            exit 2
         fi
         ;;
     ?)
@@ -42,10 +43,15 @@ fi
 #---------Making reqired directories and other primarily settings-----------------#
 ###################################################################################
 
-#---------Adding not-raw directory in the results----------------------------------
+#---------Adding $resultPath directory in the results----------------------------------
 if [ ! -d $resultPath ]
 then
-    mkdir $resultPath && echo "$resultPath directory created successfully!"
+    mkdir $resultPath 
+    if [ $? == 0 ]
+    then
+        echo "$resultPath directory created successfully!"
+    else
+        exit 1
 fi
 echo
 
@@ -81,7 +87,7 @@ do
         mkdir $resultPath/$runTime/$tagName/$rack
     done
     
-    echo "../results/collected/not-raw/$runTime/$tagName and all racks subdirectory created successfully!"
+    echo "$resultPath/$runTime/$tagName and all racks subdirectory created successfully!"
     echo "*******************************************************************************************************"
 
 
