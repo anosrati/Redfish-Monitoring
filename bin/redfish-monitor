@@ -38,20 +38,20 @@ else
     resultsPath="../results/collected/$method"
 fi
 
-
-###################################################################################
+##################################################################################
 #---------Making reqired directories and other primarily settings-----------------#
-###################################################################################
+##################################################################################
 
 #---------Adding $resultPath directory in the results----------------------------------
-if [ ! -d $resultPath ]
+if [ ! -d $resultsPath ]
 then
-    mkdir $resultPath 
+    mkdir -p $resultsPath 
     if [ $? == 0 ]
     then
-        echo "$resultPath directory created successfully!"
+        echo "$resultsPath directory created successfully!"
     else
         exit 1
+    fi
 fi
 echo
 
@@ -79,15 +79,15 @@ do
 #----------Creating tagName and runTime directory to save monitoring results-------
     tagNameCapital=`echo $tagName | tr [a-z] [A-Z]`
     echo "************************************************ $tagNameCapital ************************************************"
-    mkdir -p $resultPath/$runTime/$tagName
+    mkdir -p $resultsPath/$runTime/$tagName
 
 #----------Creating rackID directory to save monitoring results--------------------
     for rack in  `cat ../config/cluster.conf | sed -e '1,/--/d' | awk '{print $1}' | grep -v '^ *$' | uniq`
     do
-        mkdir $resultPath/$runTime/$tagName/$rack
+        mkdir $resultsPath/$runTime/$tagName/$rack
     done
     
-    echo "$resultPath/$runTime/$tagName and all racks subdirectory created successfully!"
+    echo "$resultsPath/$runTime/$tagName and all racks subdirectory created successfully!"
     echo "*******************************************************************************************************"
 
 
