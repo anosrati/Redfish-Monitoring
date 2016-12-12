@@ -1,15 +1,51 @@
 #!/bin/bash
 
+###################################################################################
+#----------Flag and argument processing-------------------------------------------#
+###################################################################################
+
+#----------Cheking flags' operand and setting the related variable for each--------
+method=
+while getopts 'M:' OPTION
+do
+    case $OPTION in
+#    a)
+#       aflag=1
+#       ;;
+    M)
+        if [ $OPTARG == "not-raw"  ] || [ $OPTARG == "raw-3step"  ] || [ $OPTARG == "raw-1step"  ]
+        then
+            method="$OPTARG"
+        else
+            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw-3step | raw-1step]"
+        fi
+        ;;
+    ?)
+        echo "Usage: $(basename $0): -M [not-raw | raw-3step | raw-1step] args"  >&2
+        exit 2
+    ;;
+    esac
+done
+
+#----------Setting the results' directory pathi from the command argument----------
+shift $(expr $OPTIND - 1)                                                                                                      
+
+if [ "$*" ]
+then
+    resultsPath="$*/$method"
+else
+    resultsPath="../results/collected/$method"
+fi
+
 
 ###################################################################################
 #---------Making reqired directories and other primarily settings-----------------#
 ###################################################################################
 
 #---------Adding not-raw directory in the results----------------------------------
-if [ ! -d ../results/collected/not-raw ]
+if [ ! -d $resultPath ]
 then
-    mkdir ../results/collected/not-raw
-    echo "../results/collected/not-raw directory created successfully!"
+    mkdir $resultPath && echo "$resultPath directory created successfully!"
 fi
 echo
 
@@ -20,14 +56,6 @@ hour=`date +%H`
 minute=`date +%M`
 second=`date +%S`
 runTime=$date-$hour-$minute-$second
-
-#----------Setting the results' directory path-------------------------------------
-if [ $1 ]
-then
-    resultsPath=$1
-else
-    resultsPath="../results/collected/not-raw"
-fi
 
 
 ###################################################################################
@@ -45,12 +73,12 @@ do
 #----------Creating tagName and runTime directory to save monitoring results-------
     tagNameCapital=`echo $tagName | tr [a-z] [A-Z]`
     echo "************************************************ $tagNameCapital ************************************************"
-    mkdir -p ../results/collected/not-raw/$runTime/$tagName
+    mkdir -p $resultPath/$runTime/$tagName
 
 #----------Creating rackID directory to save monitoring results--------------------
     for rack in  `cat ../config/cluster.conf | sed -e '1,/--/d' | awk '{print $1}' | grep -v '^ *$' | uniq`
     do
-        mkdir ../results/collected/not-raw/$runTime/$tagName/$rack
+        mkdir $resultPath/$runTime/$tagName/$rack
     done
     
     echo "../results/collected/not-raw/$runTime/$tagName and all racks subdirectory created successfully!"
