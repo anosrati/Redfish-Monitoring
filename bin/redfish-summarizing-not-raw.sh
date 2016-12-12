@@ -1,56 +1,75 @@
 #!/bin/bash
-runNumbers=`ls ../results/collected/not-raw/ | wc -l`
-testNames=`cat /root/Ali/redfish/tests/redfish-tests.info | awk '{print $1}' | tail -n +2`
-rackNumbers=`cat /root/Ali/redfish/tests/cluster.info | awk '{print $1}' | tail -n +2`
 
+###################################################################################
+#----------Creating ../results/summarized directory for saving data---------------# 
+###################################################################################
+if [ ! -d ../results/summarized ]
+then
+    mkdir ../results/summarized && echo "../results/collected/ directory created successfully!"
+fi
+echo
 
-#/root/Ali/redfish/results/summarized
-for rackNumber in $rackNumbers
+###################################################################################
+#----------Extracting necessary data from summarize.config file-------------------# 
+###################################################################################
+method=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f1`
+tag=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f3`
+rack=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f4`
+item=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f5`
+
+###################################################################################
+#----------Specifying the summarized output file name-----------------------------# 
+###################################################################################
+
+runTime=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f2`
+if [ $runTime == "all" ]
+then
+    runTimes=`ls ../results/collected/$method`
+    outputFile=../results/summarized/$method-all-$tag-$rack-$item.sum
+else
+    runTimes=$runTime
+    outputFile=../results/summarized/$method-$runTime-$tag-$rack-$item.sum
+fi
+
+###################################################################################
+#----------Summarizing data based on the config file------------------------------# 
+###################################################################################
+
+#----------Making summarized file by writing the first row - CORNER----------------
+tagCapital=`echo $tag | tr [a-z] [A-Z]`
+echo -n $tagCapital > $outputFile
+
+#----------Writing the first row - column title (Run Time)-------------------------
+for run in $runTimes
 do
-    for testName in $testNames
-    do
-########################################## MAKING SUMMARIZED FILES ###########################################
-#--------------------------------------Writing the first row - corner----------------------------------------#
-	testNameCapital=`echo $testName | tr [a-z] [A-Z]`
-	echo -n $testNameCapital  > /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
+    echo -n $'\t' $run >> $outputFile 
+done	
 
-#---------------------------Writing the first row - column title (Run number) -------------------------------#
-	for run in $runNumbers
-	do
-	    echo -n $'\t' run-$run >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
-	done	
-	#echo >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
+#----------for all the nodes in the specified rack---------------------------------
+for node in `ls ../results/collected/$method/$run/$tag/$rack/ | sort -n -t '-' -k2`
+do
+    echo >> $outputFile
+    echo -n $node >> $outputFile 
+#----------for all the runTimes in the specified rack---------------------------------
+    for runTime in $runTimes
+    do
+        if [ -f ../results/collected/$method/$runTime/$tag/$rack/$node ]
+	    then
+            time=`cat ../results/collected/$method/$runTime/$tag/$rack/$node | grep ^real | cut -d $'\t' -f2` 
+		    if [ $? -ne 0 ]
+            then
+                finalTime="null"
+            else
+                min=`echo $time | cut -dm -f1`
+                sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
+                secs=`expr $min \* 60 + $sec`
+		        milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
+		        finalTime=$secs\.$milisec
+            fi
+	    else
+	        finalTime="null"
+	    fi
+	echo -n $'\t' $finalTime >> $outputFile
     done
 done
-
-######################################## FILLING SUMMARIZED FILES #############################################
-#--------------------------------------------Summarizing data-------------------------------------------------#
-for rackNumber in $rackNumbers
-do
-    for testName in $testNames
-    do
-    	min=`cat /root/Ali/redfish/tests/cluster.info | grep $rackNumber | awk '{print $2}'`
-	max=`cat /root/Ali/redfish/tests/cluster.info | grep $rackNumber | awk '{print $3}'`
-	for node in `seq $min $max`
-    	do
-            echo >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
-	    echo -n $rackNumber-$node >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
-	    for runNumber in $runNumbers
-	    do
-		if [ -f /root/Ali/redfish/results/parallel/not-raw/run-$runNumber/$testName/$rackNumber-$node  ]
-		then
-		    time=`cat /root/Ali/redfish/results/parallel/not-raw/run-$runNumber/$testName/$rackNumber-$node | grep ^real | cut -d $'\t' -f2` 
-		    min=`echo $time | cut -dm -f1`
-		    sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
-		    milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
-		    finalTime=`expr $min \* 60000 + $sec \* 1000 + $milisec`
-		else
-		    finalTime="null"
-		fi
-		echo -n $'\t' $finalTime >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
-	    done
-	done
-        echo >> /root/Ali/redfish/results/summarized/parallel/not-raw/rack$rackNumber-$testName.sum
-    done    
-done
-
+echo >> $outputFile
