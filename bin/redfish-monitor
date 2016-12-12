@@ -13,16 +13,16 @@ do
 #       aflag=1
 #       ;;
     M)
-        if [ $OPTARG == "not-raw"  ] || [ $OPTARG == "raw-3step"  ] || [ $OPTARG == "raw-1step"  ]
+        if [ $OPTARG == "not-raw"  ] || [ $OPTARG == "raw" ]
         then
             method="$OPTARG"
         else
-            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw-3step | raw-1step]"
+            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw]"
             exit 2
         fi
         ;;
     ?)
-        echo "Usage: $(basename $0): -M [not-raw | raw-3step | raw-1step] args"  >&2
+        echo "Usage: $(basename $0): -M [not-raw | raw ] args" >&2
         exit 2
     ;;
     esac
@@ -39,7 +39,7 @@ else
 fi
 
 ##################################################################################
-#---------Making reqired directories and other primarily settings-----------------#
+#---------Making reqired directories and other primarily settings----------------#
 ##################################################################################
 
 #---------Adding $resultPath directory in the results----------------------------------
@@ -64,17 +64,18 @@ second=`date +%S`
 runTime=$date-$hour-$minute-$second
 
 
+
 ###################################################################################
 #----------Extracting the subcommands and their tags from the config file---------# 
 ###################################################################################
 
 #----------Finding number of tags for the upcoming tests---------------------------
-tagNumber=$(cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' | wc -l)
+tagNumber=$(cat ../config/redfish-subcommands-$method.conf | sed -n -e '/---/,$p' | grep -v '^ *$'  | wc -l)
 
 for i in `seq 2 $tagNumber`
 do
-    tagName=`cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' | awk '{print $1}' | head -n +$i | tail -1`
-    subCommand=`cat ../config/redfish-subcommands.conf | sed -n -e '/---/,$p' |awk -F $'\t' '{print $2}' | head -n +$i | tail -1`
+    tagName=`cat ../config/redfish-subcommands-$method.conf | sed -n -e '/---/,$p' | awk '{print $1}' | head -n +$i | tail -1`
+    subCommand=`cat ../config/redfish-subcommands-$method.conf | sed -n -e '/---/,$p' | tr -s $'\t' | awk -F $'\t' '{print $2}' | head -n +$i | tail -1`
 
 #----------Creating tagName and runTime directory to save monitoring results-------
     tagNameCapital=`echo $tagName | tr [a-z] [A-Z]`
@@ -90,15 +91,22 @@ do
     echo "$resultsPath/$runTime/$tagName and all racks subdirectory created successfully!"
     echo "*******************************************************************************************************"
 
-
-###################################################################################
-#----------Gathering data for each tag from all cluster nodes----------------------
-###################################################################################
+####################################################################################
+##----------Gathering data for each tag from all cluster nodes----------------------
+####################################################################################
     for node in `cat ../config/cluster.conf | sed -e '1,/--/d' | awk '{print $3}' | grep -v '^ *$'`
     do
         rackID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $1}'`
         nodeID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $2}'`
-        (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+        if [ $method == "not-raw" ]
+        then
+            (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+        elif [ $method == "raw" ]
+        then
+            (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ss -vvv raw GET 'https://10.101.19.1/$subCommand')&> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+        else
+            echo "Ooops! something went wrong"
+        fi
     done
     wait
 
