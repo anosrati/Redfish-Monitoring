@@ -5,7 +5,7 @@
 ###################################################################################
 if [ ! -d ../results/summarized ]
 then
-    mkdir ../results/summarized && echo "../results/collected/ directory created successfully!"
+    mkdir ../results/summarized && echo "../results/summarized/ directory created successfully!"
 fi
 echo
 
