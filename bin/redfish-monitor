@@ -18,15 +18,23 @@ do
             method="$OPTARG"
         else
             echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw]"
-            exit 2
+            exit 1
         fi
         ;;
     ?)
-        echo "Usage: $(basename $0): -M [not-raw | raw ] args" >&2
-        exit 2
+        printf "Usage: %s [ -M not-raw|raw ] DIRECTORY\n" $(basename $0) >&2
+        exit 1
     ;;
     esac
 done
+
+if [ -z $method ]
+then
+    echo "[ -M not-raw|raw ] is required"
+    printf "Usage: %s [ -M not-raw|raw ] DIRECTORY\n" $(basename $0)
+    exit 1
+fi
+
 
 #----------Setting the results' directory pathi from the command argument----------
 shift $(expr $OPTIND - 1)                                                                                                      
@@ -50,7 +58,7 @@ then
     then
         echo "$resultsPath directory created successfully!"
     else
-        exit 1
+        exit 2
     fi
 fi
 echo
