@@ -5,7 +5,7 @@
 ###################################################################################
 if [ ! -d ../results/summarized ]
 then
-    mkdir ../results/summarized && echo "../results/summarized/ directory created successfully!"
+    mkdir ../results/summarized && echo "../results/summerized directory created successfully!"
 fi
 echo
 
@@ -55,17 +55,25 @@ do
     do
         if [ -f ../results/collected/$method/$runTime/$tag/$rack/$node ]
 	    then
-            time=`cat ../results/collected/$method/$runTime/$tag/$rack/$node | grep ^real | cut -d $'\t' -f2` 
-		    if [ $? -ne 0 ]
-            then
-                finalTime="null"
-            else
-                min=`echo $time | cut -dm -f1`
-                sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
-                secs=`expr $min \* 60 + $sec`
-		        milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
-		        finalTime=$secs\.$milisec
-            fi
+#-----------check to see if there is any error in the responce file-------------------
+            time=`cat ../results/collected/$method/$runTime/$tag/$rack/$node | grep -i "Error"` 
+	    if [ $? -eq 0 ]
+	    then
+		    finalTime="error"
+	    else
+#-----------check to see if elapsed time exists or not--------------------------------
+            	time=`cat ../results/collected/$method/$runTime/$tag/$rack/$node | grep ^real | cut -d $'\t' -f2` 
+		if [ $? -ne 0 ]
+            	then
+                   finalTime="noTime"
+            	else
+                   min=`echo $time | cut -dm -f1`
+                   sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
+                   secs=`expr $min \* 60 + $sec`
+		   milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
+		   finalTime=$secs\.$milisec
+            	fi
+	    fi
 	    else
 	        finalTime="null"
 	    fi
