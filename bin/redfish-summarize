@@ -1,6 +1,30 @@
 #!/bin/bash
 
 ###################################################################################
+#----------Flag and argument processing-------------------------------------------#
+###################################################################################
+
+#----------Cheking flags' operand and setting the related variable for each--------
+rounded=
+while getopts 'R' OPTION
+do
+    case $OPTION in
+    R)
+	rounded=y
+        ;;
+    ?)
+        printf "Usage: %s [ -R ] \n" $(basename $0) >&2
+        exit 1
+    ;;
+    esac
+done
+
+if [ -z $rounded ]
+then
+    rounded=n
+fi
+
+###################################################################################
 #----------Creating ../results/summarized directory for saving data---------------# 
 ###################################################################################
 if [ ! -d ../results/summarized ]
@@ -67,11 +91,15 @@ do
             	then
                    finalTime="noTime"
             	else
-                   min=`echo $time | cut -dm -f1`
-                   sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
-                   secs=`expr $min \* 60 + $sec`
-		   milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
-		   finalTime=$secs\.$milisec
+                    min=`echo $time | cut -dm -f1`
+                    sec=`echo $time | cut -dm -f2 | cut -d\. -f1`
+                    secs=`expr $min \* 60 + $sec`
+		    milisec=`echo $time | cut -dm -f2 | cut -d\. -f2 | cut -ds -f1`
+		    finalTime=$secs\.$milisec
+		    if [ $rounded = y ]
+		    then
+			finalTime=`printf "%.*f" 0 $finalTime`
+		    fi   
             	fi
 	    fi
 	    else
