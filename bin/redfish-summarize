@@ -6,14 +6,28 @@
 
 #----------Cheking flags' operand and setting the related variable for each--------
 rounded=
-while getopts 'R' OPTION
+while getopts 'hR' OPTION
 do
     case $OPTION in
     R)
-	rounded=y
-        ;;
-    ?)
-        printf "Usage: %s [ -R ] \n" $(basename $0) >&2
+	    rounded=y
+    ;;
+    h)
+	    printf "Usage: %s [OPTION]... \n" $(basename $0) >&2
+        echo "Summarize gathered data by redfish-monitor command"
+        echo
+        echo "list of OPTIONs: "
+        echo "-h" $'\t' "Show this help"
+        echo "-R" $'\t' "Round the itme in the output file"
+        exit 1
+    ;;
+    ?)  
+        printf "Usage: %s [OPTION]... \n" $(basename $0) >&2
+        echo "Summarize gathered data by redfish-monitor command"
+        echo
+        echo "list of OPTIONs: "
+        echo "-h" $'\t' "Show this help"
+        echo "-R" $'\t' "Round the itme in the output file"
         exit 1
     ;;
     esac

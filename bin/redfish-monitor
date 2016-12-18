@@ -6,7 +6,7 @@
 
 #----------Cheking flags' operand and setting the related variable for each--------
 method=
-while getopts 'M:' OPTION
+while getopts 'hM:' OPTION
 do
     case $OPTION in
 #    a)
@@ -17,12 +17,26 @@ do
         then
             method="$OPTARG"
         else
-            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw | raw]"
+            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw|raw]"
             exit 1
         fi
         ;;
+    h)
+        printf "Usage: %s [OPTION]... [DIRECTORY] \n" $(basename $0) >&2
+        echo "Gathers different sensors' data by using redfishtool command from specified cluster"
+        echo
+        echo "list of OPTIONs: "
+        echo "-h" $'\t' $'\t' $'\t' "Show this help"
+        echo "-M [not-raw|raw]" $'\t' "Specify the type of queries that redfishtool command will use to gather sensors' data"
+        echo
+        exit 1
+        ;;
     ?)
-        printf "Usage: %s [ -M not-raw|raw ] DIRECTORY\n" $(basename $0) >&2
+        echo
+        printf "Usage: %s [OPTION]... [DIRECTORY] \n" $(basename $0) >&2
+        echo "Gathers different sensors' data by using redfishtool command from specified cluster"
+        printf "Use %s -h for help \n" $(basename $0) >&2
+        echo
         exit 1
     ;;
     esac
@@ -30,8 +44,12 @@ done
 
 if [ -z $method ]
 then
-    echo "[ -M not-raw|raw ] is required"
-    printf "Usage: %s [ -M not-raw|raw ] DIRECTORY\n" $(basename $0)
+    echo "Option -M [not-raw|raw] is required"
+    echo
+    printf "Usage: %s [OPTION].. [DIRECTORY]\n" $(basename $0)
+    echo "Gathers different sensors' data by using redfishtool command from specified cluster"
+    printf "Use %s -h for help \n" $(basename $0) >&2
+    echo
     exit 1
 fi
 
