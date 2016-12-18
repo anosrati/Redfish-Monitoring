@@ -26,7 +26,7 @@ do
         echo "Gathers different sensors' data by using redfishtool command from specified cluster"
         echo
         echo "list of OPTIONs: "
-        echo "-h" $'\t' $'\t' $'\t' "Show this help"
+        echo "-h" $'\t\t\t' "Show this help"
         echo "-M [not-raw|raw]" $'\t' "Specify the type of queries that redfishtool command will use to gather sensors' data"
         echo
         exit 1

@@ -6,19 +6,31 @@
 
 #----------Cheking flags' operand and setting the related variable for each--------
 rounded=
-while getopts 'hR' OPTION
+configFile="../config/summarize.conf"
+while getopts 'hRc:' OPTION
 do
     case $OPTION in
     R)
 	    rounded=y
+    ;;
+    c)
+        configFile=$OPTARG
+        cat $configFile &> /dev/null
+        if [ $? -ne 0 ]
+        then
+            printf "%s: Entered file for -c option (Config file) is not accessible or does not exist\n" $(basename $0) >&2                                                                   
+            echo
+            exit 1
+        fi
     ;;
     h)
 	    printf "Usage: %s [OPTION]... \n" $(basename $0) >&2
         echo "Summarize gathered data by redfish-monitor command"
         echo
         echo "list of OPTIONs: "
-        echo "-h" $'\t' "Show this help"
-        echo "-R" $'\t' "Round the itme in the output file"
+        echo "-h" $'\t\t' "Show this help"
+        echo "-R" $'\t\t' "Round the itme in the output file"
+        echo "-c FILE" $'\t' "Config file address instead ../config/summarize.conf"
         exit 1
     ;;
     ?)  
@@ -26,8 +38,9 @@ do
         echo "Summarize gathered data by redfish-monitor command"
         echo
         echo "list of OPTIONs: "
-        echo "-h" $'\t' "Show this help"
-        echo "-R" $'\t' "Round the itme in the output file"
+        echo "-h" $'\t\t' "Show this help"
+        echo "-R" $'\t\t' "Round the itme in the output file"
+        echo "-c FILE" $'\t' "Config file address instead ../config/summarize.conf"
         exit 1
     ;;
     esac
@@ -48,18 +61,18 @@ fi
 echo
 
 ###################################################################################
-#----------Extracting necessary data from summarize.config file-------------------# 
+#----------Extracting necessary data from config file-----------------------------# 
 ###################################################################################
-method=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f1`
-tag=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f3`
-rack=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f4`
-item=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f5`
+method=`cat $configFile | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f1`
+tag=`cat $configFile | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f3`
+rack=`cat $configFile | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f4`
+item=`cat $configFile | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f5`
 
 ###################################################################################
 #----------Specifying the summarized output file name-----------------------------# 
 ###################################################################################
 
-runTime=`cat ../config/summarize.conf | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f2`
+runTime=`cat $configFile | sed -e '1,/--/d' | grep -v \#  | tr -s $'\t' | cut -d $'\t' -f2`
 if [ $runTime == "all" ]
 then
     runTimes=`ls ../results/collected/$method`
