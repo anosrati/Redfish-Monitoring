@@ -13,11 +13,11 @@ do
 #       aflag=1
 #       ;;
     M)
-        if [ $OPTARG == "not-raw"  ] || [ $OPTARG == "raw" ]
+        if [ $OPTARG == "FHM"  ] || [ $OPTARG == "raw" ]
         then
             method="$OPTARG"
         else
-            echo "$(basename $0): Invalid operand for -M, select operand from [not-raw|raw]"
+            echo "$(basename $0): Invalid operand for -M, select operand from [FHM|raw]"
             exit 1
         fi
         ;;
@@ -27,7 +27,7 @@ do
         echo
         echo "list of OPTIONs: "
         echo "-h" $'\t\t\t' "Show this help"
-        echo "-M [not-raw|raw]" $'\t' "Specify the type of queries that redfishtool command will use to gather sensors' data"
+        echo "-M [FHM|raw]" $'\t' "Specify the type of queries that redfishtool command will use to gather sensors' data"
         echo
         exit 1
         ;;
@@ -44,7 +44,7 @@ done
 
 if [ -z $method ]
 then
-    echo "Option -M [not-raw|raw] is required"
+    echo "Option -M [FHM|raw] is required"
     echo
     printf "Usage: %s [OPTION].. [DIRECTORY]\n" $(basename $0)
     echo "Gathers different sensors' data by using redfishtool command from specified cluster"
@@ -124,7 +124,7 @@ do
     do
         rackID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $1}'`
         nodeID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $2}'`
-        if [ $method == "not-raw" ]
+        if [ $method == "FHM" ]
         then
             (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ssss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
         elif [ $method == "raw" ]
