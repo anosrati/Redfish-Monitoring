@@ -106,7 +106,7 @@ do
     do
         if [ -f ../results/collected/$method/$runTime/$tag/$rack/$node ]
 	    then
-#-----------check to see if there is any error in the responce file-------------------
+#-----------check to see if there is any error in the response file-------------------
             time=`cat ../results/collected/$method/$runTime/$tag/$rack/$node | grep -i "Error"` 
 	    if [ $? -eq 0 ]
 	    then

@@ -126,10 +126,10 @@ do
         nodeID=`cat ../config/cluster.conf | grep -w $node | awk -F$'\t' '{print $2}'`
         if [ $method == "FHM" ]
         then
-            (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ssss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+            (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ssss -vvv $subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID response saved" &
         elif [ $method == "RAW" ]
         then
-	    (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ssss -vvv raw GET https://$node/$subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID responce saved" &
+	    (time python3.4 ../tools/Redfishtool/redfishtool.py -r $node -SAlways -u root -p calvin -ssss -vvv raw GET https://$node/$subCommand) &> $resultsPath/$runTime/$tagName/$rackID/$rackID-$nodeID && echo "$rackID-$nodeID response saved" &
         else
             echo "Ooops! something went wrong"
         fi
